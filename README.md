@@ -43,5 +43,52 @@ if (s.length > 0)
   "2.js"
 ])
 ```
+
+## Modern approach | Promises
+
+```js
+      const loadScript = function () {
+          let cache = {};
+          return function (src) {
+              return cache[src] || (cache[src] = new Promise((resolve, reject) => {
+                  let s = document.createElement('script');
+                  s.defer = true;
+                  s.src = src;
+                  s.onload = resolve;
+                  s.onerror = reject;
+                  document.body.append(s);
+              }));
+          }
+      }();
+```
+
+### Calling above function
+```js
+      Promise.all([
+          loadScript('resources/codemirror/mode/xml/xml.js'),
+          loadScript('resources/codemirror/mode/php/php.js'),
+          loadScript('resources/codemirror/mode/clike/clike.js'),
+      ]).then(() => {
+          
+          // do something
+          var codeSelector=document.getElementById("code");
+          var editor = CodeMirror.fromTextArea(codeSelector, {
+              mode: "application/x-httpd-php",
+              matchTags: {bothTags: true},
+              theme:"default",
+              styleActiveLine: true,
+              lineNumbers: true,
+              lineWrapping: true,
+              foldGutter: true,
+              gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+              matchBrackets: true,
+              indentUnit: 4,
+              extraKeys: {"Alt-F": "findPersistent"},
+              indentWithTabs: true
+          });
+          //editor.options.mode="text/x-go";
+          //console.log(editor.options.mode,editor.options.gutters);
+      });
+```
 ## Learning Resources
 * https://web.dev/articles/speed-script-loading#toc-aggressive-optimisation
